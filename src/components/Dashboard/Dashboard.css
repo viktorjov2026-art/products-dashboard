@@ -1,0 +1,9 @@
+.dashboard {
+  border: 2px solid var(--border-clr);
+  width: 80%;
+  min-width: 550px;
+  padding: 20px;
+  border-radius: var(--border-radius-lg);
+  background-color: var(--dashboard-bg-clr);
+  color: var(--text-primary-clr);
+}
