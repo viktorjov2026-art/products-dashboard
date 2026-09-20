@@ -1,9 +1,12 @@
+import { useContext } from "react";
 import "./ProductDetails.css";
+import { ProductContext } from "../../App";
 
 function ProductDetails({ currentProduct, setCurrentProduct }) {
+  const { detailsRef } = useContext(ProductContext);
   const meta = currentProduct.meta;
   return (
-    <div className="product-details">
+    <div className="product-details" ref={detailsRef}>
       <h3>Product details:</h3>
       <img src={`${currentProduct.thumbnail}`} alt="" />
       <h3>{currentProduct.title}</h3>

@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import "./ProductsTable.css";
 import { ProductContext } from "../../App";
 import ProductRow from "../ProductRow/ProductRow";

@@ -1,16 +1,56 @@
-# React + Vite
+# Products Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React dashboard for managing and exploring products using the [DummyJSON API](https://dummyjson.com/).
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Product table with product information
+- Pagination
+- Debounced product search
+- Date filtering
+- Sorting by price, rating, and stock
+- KPI cards:
+  - Total Products
+  - Average Price
+  - Average Rating
+  - Total Stock
+  - Low Stock
 
-## React Compiler
+- Product details
+- URL state persistence for search, filters, sorting, and page
+- Loading, error, and empty states
+- Responsive dashboard layout
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Technologies
 
-## Expanding the ESLint configuration
+- React
+- Vite
+- JavaScript
+- CSS
+- DummyJSON API
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Getting Started
+
+Clone the repository and install the dependencies:
+
+npm install
+
+Start the development server:
+
+npm run dev
+
+Then open the local URL shown in the terminal.
+
+## Build
+
+To create a production build:
+
+npm run build
+
+## Approach
+
+The application is structured into reusable React components with shared product state managed through React Context.
+
+API requests are handled through React effects and the dashboard state controls search, filtering, pagination, sorting, and product details. Search requests use a debounce to avoid unnecessary API calls while typing.
+
+KPI data is fetched separately so that aggregate values reflect the current search and date filters.

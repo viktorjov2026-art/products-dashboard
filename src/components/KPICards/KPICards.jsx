@@ -9,8 +9,6 @@ function KPICards() {
     return;
   }
 
-  console.log("kpi data:", kpiData);
-
   const products = kpiData.products;
 
   const totalRating = products.reduce((acc, product) => {
@@ -28,8 +26,6 @@ function KPICards() {
   }, 0);
   const averageRating = totalRating / products.length;
 
-  console.log(totalRating);
-
   const totalPrice = products.reduce((acc, product) => {
     acc += product.price;
 
@@ -37,8 +33,6 @@ function KPICards() {
   }, 0);
 
   const averagePrice = totalPrice / products.length;
-
-  console.log("KPI section products:", products);
 
   return (
     <div className="kpi-section">

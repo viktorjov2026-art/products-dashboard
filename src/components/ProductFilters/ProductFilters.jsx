@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import "./ProductFilters.css";
 import { ProductContext } from "../../App";
 import SearchIcon from "../Icons/SearchIcon";
@@ -12,7 +12,7 @@ function ProductFilters() {
     toDate,
     setSkip,
     search,
-    data,
+
     loading,
 
     setSorted,

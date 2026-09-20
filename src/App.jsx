@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useRef, useState } from "react";
 
 import "./App.css";
 import Dashboard from "./components/Dashboard/Dashboard";
@@ -7,7 +7,7 @@ export const ProductContext = createContext();
 
 function App() {
   const params = new URLSearchParams(window.location.search);
-  console.log("window location:", params);
+
   const isSearch = params.has("search");
   const isDateFrom = params.has("from");
   const isDateTo = params.has("to");
@@ -18,21 +18,12 @@ function App() {
 
   const InitializingPage = Number(params.get("page"));
 
-  console.log("isPage:", isPage);
-  console.log("initializing page:", InitializingPage);
-
-  console.log(window.location.search);
-
   const [limit, setLimit] = useState(10);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
   const [skip, setSkip] = useState(isPage ? (InitializingPage - 1) * limit : 0);
-
-  const [totalProducts, setTotalProducts] = useState(0);
-
-  console.log("skip:", skip);
 
   const [search, setSearch] = useState(isSearch ? params.get("search") : "");
 
@@ -45,14 +36,13 @@ function App() {
   const [toDate, setToDate] = useState(isDateTo ? params.get("to") : "");
 
   const [kpiData, setKpiData] = useState(null);
+  const detailsRef = useRef(null);
   const [kpiLoading, setKpiLoading] = useState(true);
   const [currentProduct, setCurrentProduct] = useState(null);
   const [sorted, setSorted] = useState(isSorted ? params.get("sorted") : "");
   const [sortOrder, setSortOrder] = useState(
     isSortOrder ? params.get("sortOrder") : "desc",
   );
-
-  console.log("sorted", sorted);
 
   const time = "T00:00:00Z";
   const from = new Date(fromDate);
@@ -79,22 +69,17 @@ function App() {
 
   urlForKpi = url;
 
-  urlForKpi += `${urlForKpi.includes("?") ? "&" : "?"}limit=${totalProducts}`;
+  urlForKpi += `${urlForKpi.includes("?") ? "&" : "?"}limit=194`;
 
   url += `${url.includes("?") ? "&" : "?"}limit=${limit}&skip=${skip}`;
 
-  console.log("URL:", url);
-  console.log("search", search);
-
-  console.log("url for kpi:", urlForKpi);
-
   async function getProducts() {
     try {
+      console.log("GET PRODUCTS - loading starts");
       const response = await fetch(url);
 
-      console.log("URL:", url);
       const data = await response.json();
-      setTotalProducts(data.total);
+
       setData(data);
     } catch (error) {
       setError(error.message);
@@ -115,8 +100,6 @@ function App() {
       setKpiLoading(false);
     }
   }
-
-  console.log(search);
 
   //kpi data effect
   useEffect(() => {
@@ -210,12 +193,20 @@ function App() {
     window.history.pushState(null, "", `/products?${parametars}`);
   }, [search, fromDate, toDate, skip, limit, sorted, sortOrder]);
 
+  //scroll effect
+  useEffect(() => {
+    if (currentProduct) {
+      detailsRef.current?.scrollIntoView({
+        behavior: "smooth",
+      });
+    }
+  }, [currentProduct]);
+
   //initializing effect
   useEffect(() => {
     setIsInitialized(true);
   }, []);
 
-  console.log(data);
   return (
     <div className="app">
       <ProductContext.Provider
@@ -244,6 +235,7 @@ function App() {
           setLimit,
           limit,
           error,
+          detailsRef,
         }}
       >
         <Dashboard />
