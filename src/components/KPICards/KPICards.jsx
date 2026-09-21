@@ -45,14 +45,12 @@ function KPICards() {
       <div className="average-rating">
         <p>Average rating:</p>{" "}
         <span>
-          {!loading ? (Math.round(averageRating) * 100) / 100 : "..."} / 5
+          {!loading ? Math.round(averageRating * 100) / 100 : "..."} / 5
         </span>
       </div>
       <div className="average-price">
         <p>Average price:</p>{" "}
-        <span>
-          {!loading ? Math.round((averagePrice * 100) / 100) : "..."}$
-        </span>
+        <span>{!loading ? Math.round(averagePrice * 100) / 100 : "..."}$</span>
       </div>
       <div className="total-stock">
         <p>Total stock</p> <span>{!loading ? totalStock : "..."} units</span>
