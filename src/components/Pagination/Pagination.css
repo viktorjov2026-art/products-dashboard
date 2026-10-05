@@ -4,11 +4,12 @@
   gap: 15px;
 
   padding: 20px;
+  align-items: center;
 }
 
 .pages {
   display: flex;
-  gap: 4px;
+  gap: 7px;
 }
 .limit {
   display: flex;
@@ -19,8 +20,8 @@
 .page-button {
   border: 1px solid var(--border-clr);
 
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   padding: 10px;
   display: flex;
   align-items: center;
@@ -36,7 +37,8 @@
 .prev-btn,
 .next-btn {
   padding: 10px;
-  height: 30px;
+  height: 40px;
+  width: 40px;
   border: 1px solid var(--border-clr);
   background-color: var(--bg-clr);
   border-radius: var(--border-radius-sm);
@@ -44,6 +46,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  align-self: center;
 }
 
 .prev-btn:hover,
@@ -57,8 +60,8 @@
   border: 1px solid var(--border-clr);
   color: var(--text-primary-clr);
 
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   padding: 10px;
   display: flex;
   align-items: center;
@@ -73,4 +76,30 @@
 .marked {
   border-color: cyan;
   color: cyan;
+}
+
+.separator {
+  align-self: flex-end;
+  color: var(--text-secondary-clr);
+}
+
+@media (max-width: 1060px) {
+  .pages {
+    gap: 4px;
+  }
+  .page-button {
+    width: 30px;
+    height: 30px;
+  }
+
+  .next-btn,
+  .prev-btn {
+    width: 30px;
+    height: 30px;
+  }
+
+  .limit-btn {
+    width: 30px;
+    height: 30px;
+  }
 }

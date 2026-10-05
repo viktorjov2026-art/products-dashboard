@@ -6,4 +6,7 @@
   border-radius: var(--border-radius-lg);
   background-color: var(--dashboard-bg-clr);
   color: var(--text-primary-clr);
+  /* display: grid;
+  grid-template-columns: 1400px 1fr; */
+  overflow: hidden;
 }

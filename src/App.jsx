@@ -1,4 +1,5 @@
 import { createContext, useEffect, useRef, useState } from "react";
+import ProductDetailsPage from "./pages/ProductDetailsPage";
 
 import "./App.css";
 import Dashboard from "./components/Dashboard/Dashboard";
@@ -7,76 +8,74 @@ export const ProductContext = createContext();
 
 function App() {
   const params = new URLSearchParams(window.location.search);
-
-  const isSearch = params.has("search");
-  const isDateFrom = params.has("from");
-  const isDateTo = params.has("to");
-  const isSorted = params.has("sorted");
-
-  const isPage = params.has("page");
-  const isSortOrder = params.has("sortOrder");
-
-  const InitializingPage = Number(params.get("page"));
-
+  const productId = Number(params.get("productId"));
   const [limit, setLimit] = useState(10);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
-  const [skip, setSkip] = useState(isPage ? (InitializingPage - 1) * limit : 0);
+  const [skip, setSkip] = useState(0);
 
-  const [search, setSearch] = useState(isSearch ? params.get("search") : "");
-
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [search, setSearch] = useState("");
 
   const [isSkipZero, setIsSkipZero] = useState(false);
-  const [fromDate, setFromDate] = useState(
-    isDateFrom ? params.get("from") : "",
-  );
-  const [toDate, setToDate] = useState(isDateTo ? params.get("to") : "");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
   const [kpiData, setKpiData] = useState(null);
   const detailsRef = useRef(null);
   const [kpiLoading, setKpiLoading] = useState(true);
   const [currentProduct, setCurrentProduct] = useState(null);
-  const [sorted, setSorted] = useState(isSorted ? params.get("sorted") : "");
-  const [sortOrder, setSortOrder] = useState(
-    isSortOrder ? params.get("sortOrder") : "desc",
-  );
+  const [sorted, setSorted] = useState("");
+  const [sortOrder, setSortOrder] = useState("desc");
+
+  const previousSearch = useRef(search);
+  const previousSorted = useRef(sorted);
+  const previousFromDate = useRef(fromDate);
+  const previousToDate = useRef(toDate);
+  const previousSortOrder = useRef(sortOrder);
 
   const time = "T00:00:00Z";
   const from = new Date(fromDate);
   const to = new Date(toDate);
 
-  let url = "https://dummyjson.com/products";
-  let urlForKpi = "";
+  let baseUrl = "https://dummyjson.com/products";
 
-  if (search) {
-    url += `/search?q=${search}`;
-  }
-  if (fromDate) {
-    url += `${url.includes("?") ? "&" : "?"}modifiedAfter=${fromDate + time}`;
-  }
+  async function getProducts({
+    search,
+    fromDate,
+    toDate,
+    sorted,
+    sortOrder,
+    limit,
+    skip,
+  }) {
+    let url = baseUrl;
+    const params = new URLSearchParams();
+    params.set("limit", limit);
+    params.set("skip", skip);
 
-  if (toDate) {
-    url += `${url.includes("?") ? "&" : "?"}modifiedBefore=${toDate + time}`;
-  }
+    if (search) {
+      url += "/search";
+      params.set("q", search);
+    }
 
-  if (sorted) {
-    url += `${url.includes("?") ? "&" : "?"}sortBy=${sorted}
-&order=${sortOrder}`;
-  }
+    if (fromDate) {
+      params.set("modifiedAfter", fromDate + time);
+    }
 
-  urlForKpi = url;
+    if (toDate) {
+      params.set("modifiedBefore", toDate + time);
+    }
 
-  urlForKpi += `${urlForKpi.includes("?") ? "&" : "?"}limit=194`;
+    if (sorted) {
+      params.set("sortBy", sorted);
+    }
 
-  url += `${url.includes("?") ? "&" : "?"}limit=${limit}&skip=${skip}`;
+    params.set("order", sortOrder);
 
-  async function getProducts() {
     try {
-      console.log("GET PRODUCTS - loading starts");
-      const response = await fetch(url);
+      const response = await fetch(`${url}?${params}`);
 
       const data = await response.json();
 
@@ -88,10 +87,29 @@ function App() {
     }
   }
 
-  async function getKPIdata() {
+  async function getKPIdata({ search, fromDate, toDate }) {
     setKpiLoading(true);
+
+    let url = baseUrl;
+    const params = new URLSearchParams();
+
+    params.set("limit", "194");
+
+    if (search) {
+      url += "/search";
+      params.set("q", search);
+    }
+
+    if (fromDate) {
+      params.set("modifiedAfter", fromDate + time);
+    }
+
+    if (toDate) {
+      params.set("modifiedBefore", toDate + time);
+    }
     try {
-      const response = await fetch(urlForKpi);
+      const response = await fetch(`${url}?${params}`);
+
       const data = await response.json();
       setKpiData(data);
     } catch (error) {
@@ -104,108 +122,83 @@ function App() {
   //kpi data effect
   useEffect(() => {
     if (!search && !fromDate && !toDate) {
-      getKPIdata();
+      getKPIdata({ search, fromDate, toDate });
     }
-    if (fromDate || toDate || search) {
-      if ((fromDate && toDate && from < to) || search) {
-        getKPIdata();
+
+    if (fromDate || toDate) {
+      if (fromDate && toDate && from < to) {
+        getKPIdata({ search, fromDate, toDate });
       }
+    }
+
+    if (search) {
+      getKPIdata({ search, fromDate, toDate });
     }
   }, [search, fromDate, toDate]);
 
-  //search effect
+  //main effect
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (isInitialized) {
-        if (skip === 0) {
-          setIsSkipZero(!isSkipZero);
-        }
+    let timer;
+    if (!search && !fromDate && !toDate) {
+      getProducts({ search, fromDate, toDate, sorted, sortOrder, limit, skip });
+    }
+    if (search !== previousSearch.current) {
+      timer = setTimeout(() => {
+        getProducts({
+          search,
+          fromDate,
+          toDate,
+          sorted,
+          sortOrder,
+          limit,
+          skip: 0,
+        });
+        setSkip(0);
+      }, 500);
+    }
 
+    if (
+      fromDate !== previousFromDate.current ||
+      toDate !== previousToDate.current
+    ) {
+      if (fromDate && toDate && from < to) {
+        getProducts({
+          search,
+          fromDate,
+          toDate,
+          sorted,
+          sortOrder,
+          limit,
+          skip: 0,
+        });
         setSkip(0);
       }
-    }, 500);
+    }
 
+    if (
+      sorted !== previousSorted.current ||
+      sortOrder !== previousSortOrder.current
+    ) {
+      getProducts({
+        search,
+        fromDate,
+        toDate,
+        sorted,
+        sortOrder,
+        limit,
+        skip: 0,
+      });
+      setSkip(0);
+    }
+    previousSearch.current = search;
+    previousFromDate.current = fromDate;
+    previousToDate.current = toDate;
+    previousSorted.current = sorted;
+    previousSortOrder.current = sortOrder;
     return () => {
       clearTimeout(timer);
     };
-  }, [search]);
-
-  //skip effect
-  useEffect(() => {
-    getProducts();
-  }, [skip, isSkipZero, limit]);
-
-  //date effect
-  useEffect(() => {
-    if (fromDate && toDate) {
-      if (from < to) {
-        if (skip === 0) {
-          setIsSkipZero(!isSkipZero);
-        }
-
-        setSkip(0);
-      }
-    }
-
-    if (!fromDate || !toDate) {
-      if (isInitialized) {
-        if (skip === 0) {
-          setIsSkipZero(!isSkipZero);
-        }
-
-        setSkip(0);
-      }
-    }
-  }, [fromDate, toDate]);
-
-  //sorted effect
-
-  useEffect(() => {
-    if (isInitialized) {
-      if (skip === 0) {
-        setIsSkipZero(!isSkipZero);
-      } else {
-        setSkip(0);
-      }
-    }
-  }, [sorted, sortOrder]);
-
-  //url effect
-  useEffect(() => {
-    const params = new URLSearchParams();
-    params.set("search", search);
-
-    const page = skip / limit + 1;
-
-    if (fromDate) {
-      params.set("from", fromDate);
-    }
-
-    if (toDate) {
-      params.set("to", toDate);
-    }
-
-    params.set("page", page);
-    params.set("sorted", sorted);
-    params.set("sortOrder", sortOrder);
-
-    const parametars = params.toString();
-    window.history.pushState(null, "", `/products?${parametars}`);
-  }, [search, fromDate, toDate, skip, limit, sorted, sortOrder]);
-
-  //scroll effect
-  useEffect(() => {
-    if (currentProduct) {
-      detailsRef.current?.scrollIntoView({
-        behavior: "smooth",
-      });
-    }
-  }, [currentProduct]);
-
-  //initializing effect
-  useEffect(() => {
-    setIsInitialized(true);
-  }, []);
+  }, [search, fromDate, toDate, limit, sorted, sortOrder, skip]);
 
   return (
     <div className="app">
@@ -238,7 +231,7 @@ function App() {
           detailsRef,
         }}
       >
-        <Dashboard />
+        {productId ? <ProductDetailsPage /> : <Dashboard />}
       </ProductContext.Provider>
     </div>
   );

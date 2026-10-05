@@ -17,12 +17,12 @@ function ProductRow({ product }) {
       <td>{product.brand}</td>
       <td>{product.price}$</td>
       <td>{product.rating}</td>
-      <td>{product.stock}</td>
+      <td className={product.stock <= 10 ? "low" : ""}>{product.stock}</td>
 
       <td>
         <button
           className="details-btn"
-          onClick={() => setCurrentProduct(product)}
+          onClick={() => window.open(`/?productId=${product.id}`, "_blank")}
         >
           product details
         </button>

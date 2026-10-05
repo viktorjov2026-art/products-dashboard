@@ -23,6 +23,14 @@
   color: var(--text-primary-clr);
 }
 
+.low {
+  color: #f65a5a;
+}
+
+.high {
+  color: green;
+}
+
 th,
 td {
   border-bottom: 1px solid var(--border-clr);

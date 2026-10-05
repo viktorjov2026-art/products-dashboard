@@ -66,10 +66,18 @@ function ProductFilters() {
             setFromDate("");
             setToDate("");
             setSorted("");
+
             setSkip(0);
           }}
         >
           Clear filters
+        </button>
+
+        <button
+          onClick={() => setSorted("title")}
+          className="btns sort-name-btn"
+        >
+          Sort by Name{" "}
         </button>
 
         <button
